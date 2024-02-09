@@ -1,8 +1,35 @@
-//a simple OpenCL kernel which adds two vectors A and B together into a third vector C
+//a simple OpenCL kernel which adds two integer vectors A and B together into a third vector C
 kernel void add(global const int* A, global const int* B, global int* C) {
 	int id = get_global_id(0);
 	C[id] = A[id] + B[id];
 }
+
+//a simple OpenCL kernel which adds two float vectors A and B together into a third vector C
+kernel void addf(global const float* A, global const float* B, global float* C) {
+	int id = get_global_id(0);
+	C[id] = A[id] + B[id];
+}
+
+//a simple OpenCL kernel which adds two double vectors A and B together into a third vector C
+kernel void addd(global const double* A, global const double* B, global double* C) {
+	int id = get_global_id(0);
+	C[id] = A[id] + B[id];
+}
+
+//a simple OpenCL kernel which multiplies two vectors A and B together into a third vector C
+kernel void mult(global const int* A, global const int* B, global int* C) {
+	int id = get_global_id(0);
+	C[id] = A[id] * B[id];
+}
+
+//a simple OpenCL kernel which multiplies two vectors A and B together into a third vector C, vector B is then added to vector C
+kernel void multadd(global const int* A, global const int* B, global int* C) {
+	int id = get_global_id(0);
+	C[id] = A[id] * B[id];
+	C[id] = C[id] + B[id];
+}
+
+
 
 //a simple smoothing kernel averaging values in a local window (radius 1)
 kernel void avg_filter(global const int* A, global int* B) {
