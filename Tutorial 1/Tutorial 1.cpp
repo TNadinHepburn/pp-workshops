@@ -87,26 +87,18 @@ int main(int argc, char** argv) {
 
 		//4.2 Setup and execute the kernel (i.e. device code)
 
-		cl::Kernel kernel_multadd = cl::Kernel(program, "multadd");
-		kernel_multadd.setArg(0, buffer_A);
-		kernel_multadd.setArg(1, buffer_B);
-		kernel_multadd.setArg(2, buffer_C);
+		cl::Kernel kernel_add = cl::Kernel(program, "add");
+		kernel_add.setArg(0, buffer_A);
+		kernel_add.setArg(1, buffer_B);
+		kernel_add.setArg(2, buffer_C);
 
 		cl::Event prof_event;
 
-		queue.enqueueNDRangeKernel(kernel_multadd, cl::NullRange, cl::NDRange(vector_elements), cl::NullRange, NULL, &prof_event);
+		queue.enqueueNDRangeKernel(kernel_add, cl::NullRange, cl::NDRange(vector_elements), cl::NullRange, NULL, &prof_event);
 
-		//cl::Kernel kernel_mult = cl::Kernel(program, "mult");
-		//kernel_mult.setArg(0, buffer_A);
-		//kernel_mult.setArg(1, buffer_B);
-		//kernel_mult.setArg(2, buffer_C);
-		//queue.enqueueNDRangeKernel(kernel_mult, cl::NullRange, cl::NDRange(vector_elements), cl::NullRange);
-		//cl::Kernel kernel_add = cl::Kernel(program, "add");
-		//kernel_add.setArg(0, buffer_C);
-		//kernel_add.setArg(1, buffer_B);
-		//kernel_add.setArg(2, buffer_C);
-		//cl::Event prof_event;
-		//queue.enqueueNDRangeKernel(kernel_add, cl::NullRange, cl::NDRange(vector_elements), cl::NullRange, NULL, &prof_event);
+		cl::Device device = context.getInfo<CL_CONTEXT_DEVICES>()[0]; // get device
+		cerr << kernel_add.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device) << endl; // get info
+		cerr << kernel_add.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device) << endl; // get info
 
 		//4.3 Copy the result from device to host
 		cl::Event C_event;

@@ -6,11 +6,70 @@ kernel void identity(global const uchar* A, global uchar* B) {
 
 kernel void filter_r(global const uchar* A, global uchar* B) {
 	int id = get_global_id(0);
-	int image_size = get_global_size(0)/3; //each image consists of 3 colour channels
-	int colour_channel = id / image_size; // 0 - red, 1 - green, 2 - blue
+	int image_size = get_global_size(0) / 3; //each image consists of 3 colour channels
+	int colour_channel = id / image_size; // 0 - red
+	if (colour_channel != 0) {
+		B[id] = 0;
+	}
+	else {
+		B[id] = A[id];
+	}
+}
 
-	//this is just a copy operation, modify to filter out the individual colour channels
-	B[id] = A[id];
+kernel void filter_g(global const uchar* A, global uchar* B) {
+	int id = get_global_id(0);
+	int image_size = get_global_size(0) / 3; //each image consists of 3 colour channels
+	int colour_channel = id / image_size; // 1 - green
+	if (colour_channel != 1) {
+		B[id] = 0;
+	}
+	else {
+		B[id] = A[id];
+	}
+}
+
+kernel void filter_b(global const uchar* A, global uchar* B) {
+	int id = get_global_id(0);
+	int image_size = get_global_size(0) / 3; //each image consists of 3 colour channels
+	int colour_channel = id / image_size; // 2 - blue
+	if (colour_channel != 2) {
+		B[id] = 0;
+	}
+	else {
+		B[id] = A[id];
+	} 
+}
+
+kernel void inverse(global const uchar* A, global uchar* B) {
+	int id = get_global_id(0);
+	int image_size = get_global_size(0) / 3; //each image consists of 3 colour channels
+	int colour_channel = id / image_size; // 0 - red, 1 - green, 2 - blue
+	B[id] = 255 - A[id];
+
+}
+
+kernel void rgb2grey(global const uchar* A, global uchar* B) {
+	int id = get_global_id(0);
+	int image_size = get_global_size(0) / 3; //each image consists of 3 colour channels
+	int colour_channel = id / image_size; // 0 - red, 1 - green, 2 - blue
+	if (colour_channel == 0) {
+		int r_val = A[id] * 0.2126;
+		B[id] += r_val;
+		B[id + image_size] += r_val;
+		B[id + image_size + image_size] += r_val;
+	}
+	else if (colour_channel == 1) {
+		int g_val = A[id] * 0.7152;
+		B[id] += g_val;
+		B[id + image_size] += g_val;
+		B[id - image_size] += g_val;
+	}
+	else if (colour_channel == 2) {
+		int b_val = A[id] * 0.0722;
+		B[id] += b_val;
+		B[id - image_size] += b_val;
+		B[id - image_size - image_size] += b_val;
+	}
 }
 
 //simple ND identity kernel
