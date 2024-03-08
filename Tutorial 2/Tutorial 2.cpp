@@ -41,6 +41,9 @@ int main(int argc, char** argv) {
 		std::vector<float> convolution_mask = { 1.f / 9, 1.f / 9, 1.f / 9,
 												1.f / 9, 1.f / 9, 1.f / 9,
 												1.f / 9, 1.f / 9, 1.f / 9 };
+		/*std::vector<float> convolution_mask = { -1.f, -1.f, -1.f,
+												-1.f, 8.f, -1.f,
+												-1.f, -1.f, -1.f };*/
 
 		//Part 3 - host operations
 		//3.1 Select computing devices
@@ -75,19 +78,25 @@ int main(int argc, char** argv) {
 		//device - buffers
 		cl::Buffer dev_image_input(context, CL_MEM_READ_ONLY, image_input.size());
 		cl::Buffer dev_image_output(context, CL_MEM_READ_WRITE, image_input.size()); //should be the same as input image
-		//		cl::Buffer dev_convolution_mask(context, CL_MEM_READ_ONLY, convolution_mask.size()*sizeof(float));
+		cl::Buffer dev_convolution_mask(context, CL_MEM_READ_ONLY, convolution_mask.size()*sizeof(float));
 
 				//4.1 Copy images to device memory
 		queue.enqueueWriteBuffer(dev_image_input, CL_TRUE, 0, image_input.size(), &image_input.data()[0]);
-		//		queue.enqueueWriteBuffer(dev_convolution_mask, CL_TRUE, 0, convolution_mask.size()*sizeof(float), &convolution_mask[0]);
+		queue.enqueueWriteBuffer(dev_convolution_mask, CL_TRUE, 0, convolution_mask.size()*sizeof(float), &convolution_mask[0]);
+
 
 				//4.2 Setup and execute the kernel (i.e. device code)
-		cl::Kernel kernel = cl::Kernel(program, "rgb2grey");
+		cl::Kernel kernel = cl::Kernel(program, "convolutionND");
 		kernel.setArg(0, dev_image_input);
 		kernel.setArg(1, dev_image_output);
-		//		kernel.setArg(2, dev_convolution_mask);
+		kernel.setArg(2, dev_convolution_mask);
 
-		queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(image_input.size()), cl::NullRange);
+		queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(image_input.width(), image_input.height(), image_input.spectrum()), cl::NullRange);
+
+		//cl::Device device = context.getInfo<CL_CONTEXT_DEVICES>()[0]; // get device
+		//cerr << kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device) << endl; // get info
+		//cerr << kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device) << endl; // get info
+		cerr << image_input.size() << endl; // get info
 
 		vector<unsigned char> output_buffer(image_input.size());
 		//4.3 Copy the result from device to host
