@@ -96,7 +96,7 @@ kernel void reduce_add_4(global const int* A, global int* B, local int* scratch)
 }
 
 //a very simple histogram implementation
-kernel void hist_simple(global const int* A, global int* H) { 
+kernel void hist_simple(global const int* A, global int* H, global const int* nr_bins) { 
 	int id = get_global_id(0);
 
 	//assumes that H has been initialised to 0
